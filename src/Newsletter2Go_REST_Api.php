@@ -81,6 +81,70 @@ class Newsletter2Go_REST_Api
     }
 
     /**
+     * get all recipients of a list with the given fields in this account
+     * @param string $listId
+     * @param Array of string $fields
+     * @return stdClass
+     */
+    public function getRecipients($listId, $fields)
+    {
+
+        $endpoint = "/lists/$listId/recipients";
+
+        $data = array(
+          "_expand" => false,
+          "_fields" => implode(",",$fields)
+        );
+
+        return $this->curl($endpoint, $data);
+    }
+
+    /**
+     * create a recipient for a list
+     * @param string $listId
+     * @param array $recipient
+     * @return stdClass
+     */
+    public function createRecipient($listId, $recipient) 
+    {
+        $endpoint = "/recipients";
+
+        $recipient['list_id'] = $listId;
+
+        return $this->curl($endpoint, $recipient, static::METHOD_POST);
+
+    }
+
+    /**
+     * update a recipient for a list
+     * @param string $listId
+     * @param string $recipientId
+     * @param array $data
+     * @return stdClass
+     */
+    public function updateRecipient($listId, $recipientId, $data) 
+    {
+        $endpoint = "/lists/$listId/recipients/$recipientId";
+
+        return $this->curl($endpoint, $data, static::METHOD_PATCH);
+
+    }
+
+    /**
+     * delete a recipient from a list
+     * @param string $listId
+     * @param string $recipientId
+     * @return stdClass
+     */
+    public function deleteRecipient($listId, $recipientId) 
+    {
+        $endpoint = "/lists/$listId/recipients/$recipientId";
+
+        return $this->curl($endpoint, array(), static::METHOD_DELETE);
+
+    }
+
+    /**
      * get all newsletters in a list
      * @param string $listId
      * @return stdClass
@@ -288,13 +352,16 @@ class Newsletter2Go_REST_Api
      */
     public function curl($endpoint, $data, $type = "GET")
     {
+        echo "$type $endpoint\n".print_r($data,true)."\n";
         if (!isset($this->access_token) || strlen($this->access_token) == 0) {
             $this->getToken();
         }
         if (!isset($this->access_token) || strlen($this->access_token) == 0) {
             throw new \Exception("Authentication failed");
         }
-        return $this->_curl('Bearer ' . $this->access_token, $endpoint, $data, $type);
+        $return= $this->_curl('Bearer ' . $this->access_token, $endpoint, $data, $type);
+        echo "result:\n".print_r((array)$return, true)."\n";
+        return $return;
     }
 
     private function _curl($authorization, $endpoint, $data, $type = "GET")
@@ -326,7 +393,7 @@ class Newsletter2Go_REST_Api
 
 
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json',
+            'Content-Type: application/json; charset=utf-8',
             'Authorization: ' . $authorization,
             'Content-Length: ' . ($type == static::METHOD_GET || $type == static::METHOD_DELETE) ? 0 : strlen($data_string)
         ));

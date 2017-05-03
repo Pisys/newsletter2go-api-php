@@ -15,8 +15,8 @@
     "license": "GPL-3.0",
     "authors": [
         {
-            "name": "Newsletter2Go GmbH",
-            "email": "support@newsletter2go.com"
+            "name": "Pisys e.U.",
+            "email": "dev@pisys.eu"
         }
     ],
     "minimum-stability": "stable"

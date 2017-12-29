@@ -368,7 +368,7 @@ class Newsletter2Go_REST_Api
             throw new \Exception("Authentication failed");
         }
         $return= $this->_curl('Bearer ' . $this->access_token, $endpoint, $data, $type);
-        $this->logger->debug("result", $return);
+        $this->logger->debug("result", (array)$return);
         return $return;
     }
 

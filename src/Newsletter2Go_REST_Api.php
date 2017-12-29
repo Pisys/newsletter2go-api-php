@@ -94,13 +94,14 @@ class Newsletter2Go_REST_Api
      * @param Array of string $fields
      * @return stdClass
      */
-    public function getRecipients($listId, $fields)
+    public function getRecipients($listId, $fields, $limit = -1)
     {
 
         $endpoint = "/lists/$listId/recipients";
 
         $data = array(
           "_expand" => false,
+          "_limit" => $limit,
           "_fields" => implode(",",$fields)
         );
 

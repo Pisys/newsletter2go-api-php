@@ -6,6 +6,8 @@
 
 namespace NL2GO;
 
+use Monolog\Logger;
+use Monolog\Handler\RotatingFileHandler;
 
 class Newsletter2Go_REST_Api
 {
@@ -27,12 +29,18 @@ class Newsletter2Go_REST_Api
 
     private $sslVerification = true;
 
+    private $logger;
 
-    function __construct($authKey, $userEmail, $userPassword)
+    function __construct($authKey, $userEmail, $userPassword, $logFile = "", $logLevel = Logger::INFO)
     {
         $this->user_auth_key = $authKey;
         $this->user_email = $userEmail;
         $this->user_pw = $userPassword;
+        $this->logger = new Logger('NL2GO_API');
+
+        if(!empty($logFile)) {
+          $this->logger->pushHandler(new RotatingFileHandler($logFile, $logLevel));
+        }
     }
     
     public function auth(){
@@ -352,7 +360,7 @@ class Newsletter2Go_REST_Api
      */
     public function curl($endpoint, $data, $type = "GET")
     {
-        echo "$type $endpoint\n".print_r($data,true)."\n";
+        $this->logger->info("$type $endpoint", $data);
         if (!isset($this->access_token) || strlen($this->access_token) == 0) {
             $this->getToken();
         }
@@ -360,7 +368,7 @@ class Newsletter2Go_REST_Api
             throw new \Exception("Authentication failed");
         }
         $return= $this->_curl('Bearer ' . $this->access_token, $endpoint, $data, $type);
-        echo "result:\n".print_r((array)$return, true)."\n";
+        $this->logger->debug("result", $return);
         return $return;
     }
 
